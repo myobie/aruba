@@ -44,6 +44,11 @@ module Aruba
         end
       end
 
+      timer = UV::Timer.new
+      timer.start(3000, 3000) do |x|
+        UV.gc
+      end
+
       UV.run # sleep until server dies
     end
   end
