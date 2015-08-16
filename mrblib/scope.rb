@@ -17,7 +17,6 @@ module Aruba
     end
 
     def on(*args)
-      puts args.inspect
       try do
         captures = args.map { |arg| match(arg) }.flatten(1)
 
@@ -50,7 +49,6 @@ module Aruba
     private :try
 
     def consume(pattern)
-      puts pattern.inspect
       matchdata = @path.match(Regexp.new("^/(#{pattern})(/|$)"))
 
       return false unless matchdata
