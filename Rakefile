@@ -56,8 +56,11 @@ task :clean do
   end
 end
 
-file "mruby/build/host/bin/mruby" => "build_config.rb" do
-  invoke :clean
+mrblibs = Dir["mrblib/*.rb"].to_a - ["mrblib/main.rb"]
+mruby_deps = ["mrbgem.rake", "build_config.rb"] + mrblibs
+
+file "mruby/build/host/bin/mruby" => mruby_deps do
+  # invoke :clean
   Dir.chdir "./mruby" do
     ENV["MRUBY_CONFIG"] = "../build_config.rb"
     system "./minirake"
