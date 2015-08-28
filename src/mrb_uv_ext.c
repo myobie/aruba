@@ -62,12 +62,15 @@ mrb_uv_work_req_t_alloc(mrb_state *mrb, mrb_value instance, uv_req_type t)
 static void
 mrb_uv_work_call_work(uv_work_t *req)
 {
-  mrb_instance_house *house = (mrb_instance_house *)req->data;
-  mrb_state *mrb = house->mrb;
-  mrb_value proc = mrb_iv_get(mrb, house->instance, mrb_intern_lit(mrb, "work_proc"));
+  mrb_instance_house *house;
+  mrb_state *mrb;
+  mrb_value instance, proc;
 
-  mrb_assert(mrb_type(proc) == MRB_TT_PROC);
-  mrb_funcall(mrb, proc, "call", 0, NULL);
+  house = (mrb_instance_house *)req->data;
+  mrb = house->mrb;
+  instance = house->instance;
+  mrb_p(mrb, instance);
+  mrb_funcall(mrb, instance, "call", 1, mrb_check_intern_cstr(mrb, "work"));
 }
 
 #define E_UV_ERROR mrb_class_get(mrb, "UVError")
@@ -90,12 +93,15 @@ mrb_uv_work_req_t_check_error(mrb_state *mrb, int err)
 static void
 mrb_uv_work_call_after(uv_work_t *req, int err)
 {
-  mrb_instance_house *house = (mrb_instance_house *)req->data;
-  mrb_state *mrb = house->mrb;
-  mrb_value proc = mrb_iv_get(mrb, house->instance, mrb_intern_lit(mrb, "after_proc"));
+  mrb_instance_house *house;
+  mrb_state *mrb;
+  mrb_value instance, proc;
 
-  mrb_assert(mrb_type(proc) == MRB_TT_PROC);
-  mrb_funcall(mrb, proc, "call", 0, NULL);
+  house = (mrb_instance_house *)req->data;
+  mrb = house->mrb;
+  instance = house->instance;
+  mrb_p(mrb, instance);
+  mrb_funcall(mrb, instance, "call", 1, mrb_check_intern_cstr(mrb, "after"));
 
   mrb_uv_work_req_t_check_error(mrb, err);
   mrb_uv_work_req_t_free(mrb, req);

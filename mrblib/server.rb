@@ -69,13 +69,13 @@ module Aruba
           log format_response_log(res, time)
           unless res.keep_alive?
             log "shutting down conn"
-            conn.shutdown
+            conn.shutdown if conn.active? && conn.has_ref?
             log "shut it down"
           end
         end
       }
 
-      UV::Work.new(work, after)
+      UV::Work.new(work, after).work
     end
 
     def serve(&blk)

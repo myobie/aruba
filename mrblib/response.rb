@@ -96,7 +96,9 @@ module Aruba
       body.each do |content|
         accum += content
       end
-      c.write(accum, &cb)
+      if c.active? && c.has_ref?
+        c.write(accum, &cb)
+      end
     end
   end
 end
