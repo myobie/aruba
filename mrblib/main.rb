@@ -8,6 +8,22 @@ def __main__(argv)
       res.write_json foo: "bar"
     end
 
+    on "exception" do
+      raise "this should 500"
+    end
+
+    on "timeout" do
+      res.write_json timeout: true
+      sleep 10
+      res.write_json timeout: false
+    end
+
+    on "error" do
+      # will raise, there is no nested
+      on nested do
+      end
+    end
+
     on root do
       res.write_json root: true
     end

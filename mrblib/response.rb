@@ -6,6 +6,8 @@ module Aruba
 
     attr :body
     attr :headers
+    attr :length
+    attr :content_type
 
     def initialize(opts = {})
       @body         = []
@@ -37,6 +39,10 @@ module Aruba
     def write_json(obj)
       str = JSON.generate(obj)
       write(str)
+    end
+
+    def reset_body!
+      @body = []
     end
 
     def body?
@@ -73,22 +79,24 @@ module Aruba
       end
     end
 
-    def write_to(c)
-      c.write "HTTP/1.1 #{status_string}\r\n"
+    def write_to(c, &cb)
+      accum = ""
+      accum +=  "HTTP/1.1 #{status_string}\r\n"
       if @keep_alive
-        c.write "Connection: keep-alive\r\n"
+        accum += "Connection: keep-alive\r\n"
       else
-        c.write "Connection: close\r\n"
+        accum += "Connection: close\r\n"
       end
-      c.write "Content-type: #{@content_type}\r\n"
-      c.write "Content-Length: #{@length}\r\n"
+      accum += "Content-type: #{@content_type}\r\n"
+      accum += "Content-Length: #{@length}\r\n"
       @headers.each do |key, value|
-        c.write "#{key}: #{value}\r\n"
+        accum += "#{key}: #{value}\r\n"
       end
-      c.write "\r\n"
+      accum += "\r\n"
       body.each do |content|
-        c.write content
+        accum += content
       end
+      c.write(accum, &cb)
     end
   end
 end

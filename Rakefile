@@ -6,6 +6,10 @@ task :default => :mruby do
   exec "bin/mruby mrblib/main.rb"
 end
 
+task :console => :mruby do
+  exec "bin/mirb"
+end
+
 task :compile => :clean do
   ENV["BUILD_BINARIES"] = "true"
   invoke :mruby
@@ -57,7 +61,8 @@ task :clean do
 end
 
 mrblibs = Dir["mrblib/*.rb"].to_a - ["mrblib/main.rb"]
-mruby_deps = ["mrbgem.rake", "build_config.rb"] + mrblibs
+clibs = Dir["src/*.c"].to_a
+mruby_deps = ["mrbgem.rake", "build_config.rb"] + mrblibs + clibs
 
 file "mruby/build/host/bin/mruby" => mruby_deps do
   # invoke :clean

@@ -5,7 +5,25 @@ module Aruba
     end
 
     def self.from(bytes)
+      parser_mutex.lock
       new(parser.parse_request(bytes))
+    ensure
+      parser_mutex.unlock
+    end
+
+    def self.parser_mutex
+      @parser_mutex ||= UV::Mutex.new
+    end
+
+    def self.decode(str)
+      decode_mutex.lock
+      HTTP::URL.decode(str)
+    ensure
+      decode_mutex.unlock
+    end
+
+    def self.decode_mutex
+      @decode_mutex ||= UV::Mutex.new
     end
 
     attr_reader :headers, :params, :query, :path
@@ -17,7 +35,7 @@ module Aruba
       @path = joyent.path || "/"
       @params = query.split("&").compact.each_with_object({}) do |combos, h|
         next if combos.nil?
-        key, value = combos.split("=").map { |c| HTTP::URL.decode(c) }
+        key, value = combos.split("=").map { |c| self.class.decode(c) }
         h[key] = value
       end
     end
